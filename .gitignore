@@ -1,0 +1,16 @@
+Thumbs.db
+*.user
+*.vspscc
+*.suo
+.suo
+*.bak
+*.cache
+*.log
+*.design
+.vs/
+obj/
+bin/
+packages/
+Properties/
+App.config
+*.orig
