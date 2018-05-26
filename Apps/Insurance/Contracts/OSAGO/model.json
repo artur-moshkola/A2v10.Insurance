@@ -1,0 +1,10 @@
+﻿{
+  "schema": "a2insurance",
+  "model": "Contract",
+  "actions": {
+    "edit": {
+      "view": "edit",
+      "template": "edit.template"
+    }
+  }
+}

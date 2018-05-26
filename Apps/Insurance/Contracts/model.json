@@ -1,0 +1,10 @@
+﻿{
+  "schema": "a2insurance",
+  "model": "Contract",
+  "actions": {
+    "index": {
+      "index": true,
+      "view": "index"
+    }
+  }
+}
