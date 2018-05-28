@@ -1,6 +1,6 @@
 ﻿{
   "schema": "a2insurance",
-  "model": "Contract",
+  "model": "Contract.OSAGO",
   "actions": {
     "edit": {
       "view": "edit",

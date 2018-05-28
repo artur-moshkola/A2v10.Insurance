@@ -4,7 +4,15 @@
   "actions": {
     "index": {
       "index": true,
-      "view": "index"
+      "view": "index",
+      "template": "index.template"
+    }
+  },
+  "dialogs": {
+    "browseProducts": {
+      "index": true,
+      "model": "Products.Browse",
+      "view": "browseProducts.dialog"
     }
   }
 }

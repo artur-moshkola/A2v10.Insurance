@@ -2,21 +2,18 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:sys="clr-namespace:System;assembly=mscorlib"
       >
-    <Partial.Resources>
-        <sys:String x:Key="OpenUrl">/Contracts</sys:String>
-    </Partial.Resources>
     <CollectionView ItemsSource="{Bind Contracts}" RunAt="Server" Filter="Fragment">
         <FullHeightPanel>
             <Toolbar>
-                <Button Icon="Add" Tip="Создать" Command="{BindCmd Create, Url={StaticResource OpenUrl}, Argument={Bind Root.$ForCreate}}">Создать</Button>
-                <Button Icon="Edit" Command="{BindCmd OpenSelected, Url={StaticResource OpenUrl}, Argument={Bind Contracts}}">Изменить</Button>
+                <Button Icon="Add" Tip="Создать" Command="{BindCmd Execute, CommandName=createContract}">Создать</Button>
+                <Button Icon="Edit" Command="{BindCmd Execute, CommandName=openContract, Argument={Bind Contracts.$selected}}">Изменить</Button>
                 <Separator />
                 <Button Icon="Reload" Command="{BindCmd Reload}" Tip="Обновить данные">Обновить</Button>
             </Toolbar>
             <DataGrid FullHeightPanel.Fill="True" ItemsSource="{Bind Parent.ItemsSource}" Hover="True" HeadersVisibility="Column"
 				Striped="True" Sort="True" GridLines="Vertical" FixedHeader="True"
-                DoubleClick="{BindCmd Dialog, Action=EditSelected, Url={StaticResource OpenUrl}, Argument={Bind Agents}}">
-                <DataGridColumn Header="Код" Content="{Bind Id}" Align="Right" Fit="True"  Command="{BindCmd Dialog, Action=Edit, Url={StaticResource OpenUrl}, Argument={Bind}}"/>
+                DoubleClick="{BindCmd OpenSelected, Url={Bind Root.$selectedUrl}, Argument={Bind Contracts}}">
+                <DataGridColumn Header="Код" Content="{Bind Id}" Align="Right" Fit="True" />
                 <DataGridColumn Header="Номер" Content="{Bind No}"/>
                 <DataGridColumn Header="Продукт" Content="{Bind ProductName}"/>
             </DataGrid>

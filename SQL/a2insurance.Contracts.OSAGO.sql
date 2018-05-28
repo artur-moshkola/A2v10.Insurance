@@ -54,3 +54,27 @@ begin
 	);
 end
 go
+
+
+
+
+if exists (select * from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA=N'a2insurance' and ROUTINE_NAME=N'Contract.OSAGO.Load')
+	drop procedure a2insurance.[Contract.OSAGO.Load]
+go
+------------------------------------------------
+create procedure a2insurance.[Contract.OSAGO.Load]
+	@UserId bigint,
+	@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Contract!TContract!Object]=null,
+		[Id!!Id]=ct.Id, ct.[No], ct.[Date]
+	from a2insurance.Contracts ct
+	inner join a2insurance.ContractsOSAGO ctd on ctd.ContractId=ct.Id
+	inner join a2insurance.ContractsVehicles ctv on ctv.ContractId=ct.Id and ctv.[Index]=0
+	where ct.Id=@Id;
+
+end

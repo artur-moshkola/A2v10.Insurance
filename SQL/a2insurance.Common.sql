@@ -272,7 +272,7 @@ begin
 	)
 	select [Contracts!TContract!Array]=null, [!!RowCount] = (select count(1) from T),
 		[Id!!Id]=ct.Id, ct.[No],
-		ProductName=p.[Name]
+		ProductKey=p.[Key], ProductName=p.[Name]
 	from T
 	inner join a2insurance.Contracts ct on ct.Id=T.Id
 	inner join a2insurance.Products p on p.[Key]=ct.ProductKey
@@ -288,5 +288,25 @@ begin
 		[!Contracts!SortOrder] = @Order, 
 		[!Contracts!SortDir] = @Dir,
 		[!Contracts!Offset] = @Offset;
+end
+go
+
+
+if exists (select * from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA=N'a2insurance' and ROUTINE_NAME=N'Products.Browse.Index')
+	drop procedure a2insurance.[Products.Browse.Index]
+go
+------------------------------------------------
+create procedure a2insurance.[Products.Browse.Index]
+	@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Products!TProduct!Array]=null,
+		[Key!!Id]=p.[Key], p.[Name]
+	from a2insurance.Products p
+	order by p.[Name];
+
 end
 go
