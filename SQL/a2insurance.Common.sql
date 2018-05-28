@@ -161,17 +161,72 @@ begin
 end
 go
 
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'a2insurance' and SEQUENCE_NAME=N'SQ_VehicleMakes')
+	create sequence a2insurance.SQ_VehicleMakes as bigint start with 1 increment by 1;
+go
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2insurance' and TABLE_NAME=N'VehicleMakes')
+begin
+	create table a2insurance.VehicleMakes
+	(
+		Id bigint not null
+			constraint PK_VehicleMakes primary key clustered
+			constraint DF_VehicleMakes_PK default (next value for a2insurance.SQ_VehicleMakes),
+		[Name] nvarchar (255)
+	);
+end
+go
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'a2insurance' and SEQUENCE_NAME=N'SQ_VehicleModels')
+	create sequence a2insurance.SQ_VehicleModels as bigint start with 1 increment by 1;
+go
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2insurance' and TABLE_NAME=N'VehicleModels')
+begin
+	create table a2insurance.VehicleModels
+	(
+		Id bigint not null
+			constraint PK_VehicleModels primary key clustered
+			constraint DF_VehicleModels_PK default (next value for a2insurance.SQ_VehicleModels),
+		MakeId bigint not null
+			constraint FK_VehicleModels_MakeId foreign key references a2insurance.VehicleMakes (Id),
+		[Name] nvarchar (255)
+	);
+end
+go
+if (not exists (select * from sys.indexes where name=N'UQ_VehicleModels_MakeId_Id'))
+	create unique index UQ_VehicleModels_MakeId_Id on a2insurance.VehicleModels (MakeId, Id);
+go
+
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2insurance' and TABLE_NAME=N'ContractsVehicles')
 begin
 	create table a2insurance.ContractsVehicles
 	(
 		ContractId bigint not null
-			constraint FK_ContractsVehicles_ContractId references a2insurance.Contracts (Id),
+			constraint FK_ContractsVehicles_ContractId references a2insurance.Contracts (Id) on delete cascade,
 		[Index] int not null,
-		constraint PK_ContractsVehicles primary key clustered (ContractId, [Index])
+		constraint PK_ContractsVehicles primary key clustered (ContractId, [Index]),
+		VIN nvarchar(36),
+		LicensePlate nvarchar(16),
+		MakeId bigint null
+			constraint FK_ContractsVehicles_MakeId foreign key references a2insurance.VehicleMakes (Id)
+		,
+		MakeName nvarchar(255),
+		ModelId bigint
+			--constraint FK_ContractsVehicles_ModelId foreign key references a2insurance.VehicleModels (Id)
+		,
+		constraint FK_ContractsVehicles_MakeId_ModelId foreign key (MakeId, ModelId) references a2insurance.VehicleModels (MakeId, Id),
+		ModelName nvarchar(255),
+		ModelSuffix nvarchar(255),
+		ProductionYear int,
+		EngineDisplacement int,
+		Color nvarchar(255),
+		RegistrationRegion bigint,
+		RegistrationDistrict bigint,
+		RegistrationCity bigint,
+		RegistrationZone bigint
 	);
 end
 go
+
+
 
 
 --------------
@@ -187,13 +242,11 @@ go
 ------------------------------------------------
 create procedure a2insurance.[Contract.Index]
 	@UserId bigint,
-	@Kind nvarchar(255),
+	@Product nvarchar(16) = null,
 	@Offset int = 0,
 	@PageSize int = 20,
 	@Order nvarchar(255) = N'Id',
-	@Dir nvarchar(20) = N'desc',
-	@Agent bigint = null,
-	@GroupBy nvarchar(255) = N''
+	@Dir nvarchar(20) = N'desc'
 as
 begin
 	set nocount on;
@@ -204,59 +257,36 @@ begin
 	set @Dir = isnull(@Dir, @Asc);
 
 	-- list of users
-	with T([Id!!Id], [Date], [No], [Sum], Memo, 
-		[Agent.Id!TAgent!Id], [Agent.Name!TAgent!Name], 
-		[DepFrom.Id!TAgent!Id],  [DepFrom.Name!TAgent!Name],
-		[DepTo.Id!TAgent!Id],  [DepTo.Name!TAgent!Name], Done,
-		DateCreated, DateModified, [ParentDoc!TDocParent!RefId],
-		[!!RowNumber])
-	as(
-		select d.Id, d.[Date], d.[No], d.[Sum], d.Memo, 
-			d.Agent, a.[Name], d.DepFrom, f.[Name], d.DepTo, t.[Name], d.Done,
-			d.DateCreated, d.DateModified, d.Parent,
-			[!!RowNumber] = row_number() over (
+	with T as(
+		select ct.Id, RN = row_number() over (
 			 order by
-				case when @Order=N'Id' and @Dir = @Asc then d.Id end asc,
-				case when @Order=N'Id' and @Dir = @Desc  then d.Id end desc,
-				case when @Order=N'Date' and @Dir = @Asc then d.[Date] end asc,
-				case when @Order=N'Date' and @Dir = @Desc  then d.[Date] end desc,
-				case when @Order=N'No' and @Dir = @Asc then d.[No] end asc,
-				case when @Order=N'No' and @Dir = @Desc then d.[No] end desc,
-				case when @Order=N'Sum' and @Dir = @Asc then d.[Sum] end asc,
-				case when @Order=N'Sum' and @Dir = @Desc then d.[Sum] end desc,
-				case when @Order=N'Memo' and @Dir = @Asc then d.Memo end asc,
-				case when @Order=N'Memo' and @Dir = @Desc then d.Memo end desc,
-				case when @Order=N'Agent.Name' and @Dir = @Asc then a.[Name] end asc,
-				case when @Order=N'Agent.Name' and @Dir = @Desc then a.[Name] end desc
+				case when @Order=N'Id' and @Dir = @Asc then ct.Id end asc,
+				case when @Order=N'Id' and @Dir = @Desc  then ct.Id end desc,
+				case when @Order=N'Date' and @Dir = @Asc then ct.[Date] end asc,
+				case when @Order=N'Date' and @Dir = @Desc  then ct.[Date] end desc,
+				case when @Order=N'No' and @Dir = @Asc then ct.[No] end asc,
+				case when @Order=N'No' and @Dir = @Desc then ct.[No] end desc
 			)
-		from a2demo.Documents d
-			left join a2demo.Agents a on d.Agent = a.Id
-			left join a2demo.Agents f on d.DepFrom = f.Id
-			left join a2demo.Agents t on d.DepTo = t.Id
-		where d.Kind=@Kind and (@Agent is null or d.Agent = @Agent)
+		from a2insurance.Contracts ct
+		where @Product is null or ct.ProductKey=@Product
 	)
-	select [Documents!TDocument!Array]=null, *, [Links!TDocLink!Array] = null, 
-		[!!RowCount] = (select count(1) from T)
-	into #tmp
+	select [Contracts!TContract!Array]=null, [!!RowCount] = (select count(1) from T),
+		[Id!!Id]=ct.Id, ct.[No],
+		ProductName=p.[Name]
 	from T
-		where [!!RowNumber] > @Offset and [!!RowNumber] <= @Offset + @PageSize
+	inner join a2insurance.Contracts ct on ct.Id=T.Id
+	inner join a2insurance.Products p on p.[Key]=ct.ProductKey
+	where T.RN between @Offset+1 and @Offset+@PageSize;
 
-	select * from #tmp
-	order by [!!RowNumber];
-
-	select [!TDocLink!Array] = null, [Id!!Id] = Id, [!TDocument.Links!ParentId] = Parent, Kind, [Date], [No], [Sum]
-	from a2demo.Documents where Parent in (select [Id!!Id] from #tmp)
-
-	select [!TDocParent!Map] = null, [Id!!Id] = Id, Kind, [Date], [No], [Sum]
-	from a2demo.Documents where Id in (select [ParentDoc!TDocParent!RefId] from #tmp);
+	select [Products!TProduct!Array]=null,
+		[Key!!Id]=p.[Key], p.[Name]
+	from a2insurance.Products p
+	order by p.[Name]
 
 	select [!$System!] = null, 
-		[!Documents!PageSize] = @PageSize, 
-		[!Documents!SortOrder] = @Order, 
-		[!Documents!SortDir] = @Dir,
-		[!Documents!Offset] = @Offset,
-		[!Documents!GroupBy] = @GroupBy,
-		[!Documents.Agent.Id!Filter] = @Agent,
-		[!Documents.Agent.Name!Filter] = (select [Name] from a2demo.Agents where Id=@Agent);
+		[!Contracts!PageSize] = @PageSize,
+		[!Contracts!SortOrder] = @Order, 
+		[!Contracts!SortDir] = @Dir,
+		[!Contracts!Offset] = @Offset;
 end
 go
