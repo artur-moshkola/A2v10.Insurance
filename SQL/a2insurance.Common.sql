@@ -158,6 +158,7 @@ begin
 		BeneficiaryPhone nvarchar(64) null,
 		BeneficiaryEmail nvarchar(255) null
 	);
+	create unique index UQ_Contracts_No on a2insurance.Contracts ([No]) where IsVoid=0;
 end
 go
 

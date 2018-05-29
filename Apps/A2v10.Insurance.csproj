@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{00000000-0000-0000-0000-000000000000}</ProjectGuid>
+    <ProjectGuid>{900B29CC-767A-441D-A04B-C3A27D284AD1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>ClassLibrary</AssemblyName>
@@ -26,7 +26,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>A2v10.Insurance</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="A2v10.Xaml">
+      <HintPath>..\..\A2v10\Shared\A2v10.Xaml\obj\Release\A2v10.Xaml.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -35,6 +41,82 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="Admin\Identity\Group\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\Group\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\Group\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\Role\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\Role\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\Role\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\User\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\User\create.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\User\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\User\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Admin\Identity\User\password.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Insurance\Contracts\browseProducts.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Insurance\Contracts\index.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Insurance\Contracts\OSAGO\edit.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Admin\Identity\Group\edit.template.js" />
+    <Content Include="Admin\Identity\Role\edit.template.js" />
+    <Content Include="Admin\Identity\User\create.template.js" />
+    <Content Include="Admin\Identity\User\edit.template.js" />
+    <Content Include="Admin\Identity\User\index.template.js" />
+    <Content Include="Admin\Identity\User\password.template.js" />
+    <Content Include="Insurance\Contracts\index.template.js" />
+    <Content Include="Insurance\Contracts\OSAGO\edit.template.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Admin\Identity\Group\model.json" />
+    <None Include="Admin\Identity\Role\model.json" />
+    <None Include="Admin\Identity\User\model.json" />
+    <None Include="Insurance\Contracts\model.json" />
+    <None Include="Insurance\Contracts\OSAGO\model.json" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />

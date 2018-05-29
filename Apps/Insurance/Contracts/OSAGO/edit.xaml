@@ -1,11 +1,37 @@
-<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:sys="clr-namespace:System;assembly=mscorlib"
-      >
-    <Panel Header="Информация о документе" Style="Info" Icon="InfoOutline"
-          Collapsible="True" Padding="0, 6">
-        <PropertyGrid GridLines="Horizontal" Compact="True" >
-            <PropertyGridItem Name="Код" Content="{Bind Contract.Id}"/>
-        </PropertyGrid>
-    </Panel>
-</Partial>
+<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+    <Page.Toolbar>
+        <Toolbar>
+            <Button Icon="Save" Content="Зберегти" Command="{BindCmd Save, Toast='Договір збережено'}" />
+            <Button Icon="SaveClose" Content="Зберегти та закрити" Command="{BindCmd SaveAndClose, Toast='Договір збережено'}" />
+            <Button Icon="Reload" Content="Оновити" Command="{BindCmd Reload}" />
+            <Separator/>
+            <Button Icon="Close" Content="Закрити" Command="{BindCmd Close}" Toolbar.Align="Right" />
+        </Toolbar>
+    </Page.Toolbar>
+    <Page.Taskpad>
+        <Taskpad Width="290">
+        </Taskpad>
+    </Page.Taskpad>
+    <Grid Columns="MinMax(13rem; 16rem), MinMax(13rem; 16rem), MinMax(13rem; 16rem), 1*">
+        <Header Grid.Row="1" Grid.Col="1" Grid.ColSpan="3">Договір</Header>
+        <ComboBox Grid.Row="2" Grid.Col="1" Value="{Bind Contract.MediaType}" Label="Вид договору">
+            <ComboBoxItem Value="onBlank">На бланку</ComboBoxItem>
+            <ComboBoxItem Value="ePolicy">Електронний</ComboBoxItem>
+        </ComboBox>
+        <Grid Grid.Row="3" Grid.Col="1" Show="{Bind Contract.$isOnBlank}">
+            <ComboBox Grid.Row="1" Grid.Col="1" Value="{Bind Contract.BlankSeries}" Label="Серія бланку" ItemsSource="{Bind BlankSeries}">
+                <ComboBoxItem Content="{Bind Key}" Value="{Bind Key}"/>
+            </ComboBox>
+            <TextBox Grid.Row="1" Grid.Col="2" Label="Номер бланку" Value="{Bind Contract.BlankNo}"/>
+        </Grid>
+    </Grid>
+    <Grid Columns="MinMax(13rem; 16rem), MinMax(13rem; 16rem), MinMax(13rem; 16rem), 1*">
+        <Header Grid.Col="1" Grid.ColSpan="3">Страхувальник</Header>
+    </Grid>
+    <Grid Columns="MinMax(13rem; 16rem), MinMax(13rem; 16rem), MinMax(13rem; 16rem), 1*">
+        <Header Grid.Col="1" Grid.ColSpan="3">Транспортний засіб</Header>
+    </Grid>
+    <Grid Columns="MinMax(13rem; 16rem), MinMax(13rem; 16rem), MinMax(13rem; 16rem), 1*">
+        <Header Grid.Col="1" Grid.ColSpan="3">Тарифікація</Header>
+    </Grid>
+</Page>
